@@ -1,0 +1,1 @@
+DROP INDEX posts__user_id__idx ON `todo`;

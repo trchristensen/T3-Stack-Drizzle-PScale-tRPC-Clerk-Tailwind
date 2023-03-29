@@ -1,0 +1,5 @@
+{
+  "connectionString": "mysql://lrubpbd4v8b51re6jewv:pscale_pw_CxOiPlwRQrZGoXZiE7TE3SWfowxGk1WFWymRtcxyUDL@aws.connect.psdb.cloud/main?sslaccept=strict&ssl={\"rejectUnauthorized\":true}",
+  "out": "./db/generated",
+  "schema": "./db/schema.ts"
+}

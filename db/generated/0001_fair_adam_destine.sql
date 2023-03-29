@@ -1,0 +1,1 @@
+ALTER TABLE todo MODIFY COLUMN `id` varchar(128) NOT NULL;
