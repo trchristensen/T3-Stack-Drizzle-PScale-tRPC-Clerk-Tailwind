@@ -7,6 +7,7 @@ export const todoRouter = createTRPCRouter({
 
   create: publicProcedure
     .input(z.object({
+      id: z.string().optional(),
       userId: z.string().nonempty(),
       text: z.string().nonempty(),
       completed: z.boolean().default(false)
@@ -14,6 +15,7 @@ export const todoRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
 
       return await createTodo({
+        id: input.id || createId(),
         user_id: createId(),
         text: input.text,
         completed: input.completed || false

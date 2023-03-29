@@ -1,14 +1,13 @@
 import { db } from "~/lib/db";
 import { type NewTodo, todo } from "~/../db/schema"
-import { createId } from '@paralleldrive/cuid2';
 import { desc, eq } from 'drizzle-orm/expressions';
 
 
 
-export async function createTodo({ text, completed = false, user_id }: { text: string, completed?: boolean, user_id: string }) {
-
+export async function createTodo({ id, text, completed = false, user_id }: { id: string, text: string, completed?: boolean, user_id: string }) {
+    console.log("createTodo", id, text, completed, user_id)
     const newTodo: NewTodo = {
-        id: createId(),
+        id,
         completed,
         text,
         user_id,
