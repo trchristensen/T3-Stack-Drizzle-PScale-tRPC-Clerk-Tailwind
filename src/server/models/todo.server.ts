@@ -2,10 +2,7 @@ import { db } from "~/lib/db";
 import { type NewTodo, todo } from "~/../db/schema"
 import { desc, eq } from 'drizzle-orm/expressions';
 
-
-
-export async function createTodo({ id, text, completed = false, user_id }: { id: string, text: string, completed?: boolean, user_id: string }) {
-    console.log("createTodo", id, text, completed, user_id)
+export async function createTodo({ id, text, completed = false, user_id }: NewTodo) {
     const newTodo: NewTodo = {
         id,
         completed,

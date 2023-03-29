@@ -1,0 +1,5 @@
+{
+  "connectionString": "mysql://generated_username:pscale_pw_1234567890@aws.connect.psdb.cloud/todo?sslaccept=strict&ssl={\"rejectUnauthorized\":true}",
+  "out": "./db/generated",
+  "schema": "./db/schema.ts"
+}

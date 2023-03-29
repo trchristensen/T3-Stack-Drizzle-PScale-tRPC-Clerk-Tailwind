@@ -5,7 +5,7 @@ import { mysqlTable } from "drizzle-orm/mysql-core/table";
 export const todo = mysqlTable(
     "todo",
     {
-        id: varchar("id", { length: 255}).primaryKey(),
+        id: varchar("id", { length: 255}).primaryKey().notNull(),
         user_id: varchar("userId", { length: 191 }).notNull(),
         text: text("text").notNull(),
         created_at: timestamp("createdAt").notNull().defaultNow().onUpdateNow(),

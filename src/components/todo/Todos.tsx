@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { type Todo } from "db/schema";
+import { NewTodo, type Todo } from "db/schema";
 import { useState } from "react";
 import { api } from "~/utils/api";
 
@@ -7,29 +7,19 @@ const Todo = () => {
   const ctx = api.useContext();
 
   const createTodo = api.todo.create.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       setText("");
-      console.log("data", data);
     },
     onMutate: async (variables) => {
-      console.log("variables", variables);
-
       await ctx.todo.getAll.cancel();
-      ctx.todo.getAll.setData(
-        undefined,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-return
-        (old) =>
-          old
-            ? [
-                {
-                  ...variables,
-                  created_at: new Date(),
-                  updated_at: new Date(),
-                },
-                ...old,
-              ]
-            : [variables]
-      );
+     ctx.todo.getAll.setData(void 0, (old: Todo[] | undefined) => {
+      console.log('OLD', old)
+       if (!old) {
+         return [variables];
+       } else {
+         return [variables, ...old];
+       }
+     });
     },
   });
 
@@ -50,7 +40,6 @@ const Todo = () => {
     e.preventDefault();
 
     const id = createId();
-    console.log("ID", id);
     const variables = {
       id,
       text,
@@ -78,7 +67,7 @@ const Todo = () => {
     <div className="flex flex-col gap-4">
       <form onSubmit={handleAddTodo}>
         <input
-          className="w-full max-w-md rounded-lg outline-purple-200/20 bg-white/20 px-4 py-2"
+          className="w-full text-xl max-w-md rounded-lg bg-white/20 px-4 py-2 outline-purple-200/20"
           type="text"
           placeholder="Add a todo..."
           value={text}
@@ -86,7 +75,7 @@ const Todo = () => {
         />
       </form>
 
-      <div className="grid w-full grid-cols-1 gap-4">
+      <div className="w-full flex flex-col gap-4 text-lg">
         {todos &&
           todos.map((todo) => {
             return (
@@ -95,8 +84,8 @@ const Todo = () => {
                 key={todo.id}
               >
                 <span>
-                  {todo.text} -{" "}
-                  <span className="text-white/50">{todo.id.slice(-5, -1)}</span>
+                  {todo.text}
+                
                 </span>
                 <button onClick={() => handleDeleteTodo(todo.id)}>x</button>
               </div>

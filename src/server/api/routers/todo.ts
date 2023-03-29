@@ -7,20 +7,22 @@ export const todoRouter = createTRPCRouter({
 
   create: publicProcedure
     .input(z.object({
-      id: z.string().optional(),
+      id: z.string().nonempty(),
       userId: z.string().nonempty(),
       text: z.string().nonempty(),
       completed: z.boolean().default(false)
     }))
     .mutation(async ({ input }) => {
-
       return await createTodo({
         id: input.id || createId(),
         user_id: createId(),
         text: input.text,
-        completed: input.completed || false
+        completed: input.completed || false,
+        created_at: new Date(),
+        updated_at: new Date()
       })
     }),
+
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
@@ -28,6 +30,7 @@ export const todoRouter = createTRPCRouter({
         id: input.id
       })
     }),
+
   getAll: publicProcedure
     .query(async () => {
       return await getAllTodos()
