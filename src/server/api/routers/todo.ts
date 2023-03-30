@@ -1,10 +1,8 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { createId } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
-import { todo } from "db/schema";
 import { z } from "zod";
-import { db } from "~/lib/db";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { createTodo, deleteTodo, getAllTodos, getAllTodosByUserId, getTodo } from "~/server/models/todo.server";
 
 export const todoRouter = createTRPCRouter({
@@ -37,7 +35,7 @@ export const todoRouter = createTRPCRouter({
       // if no user_id in context, throw an error
       if (!ctx.userId) throw new TRPCError({ code: "UNAUTHORIZED" })
 
-      const isAdmin = checkIfAdmin(ctx.userId);
+      const isAdmin = await checkIfAdmin(ctx.userId);
       // look up todo in db to grab user_id
       const todo = await getTodo({ id: input.id })
       // if the todo's user_id doesn't match the user_id in the context or is not admin, throw an error
