@@ -14,6 +14,10 @@ export async function createTodo({ id, text, completed = false, user_id }: NewTo
     return await db.insert(todo).values(newTodo)
 }
 
+export async function getTodo({ id }: { id: string }) {
+    return await db.select().from(todo).where(eq(todo.id, id));
+}
+
 export async function deleteTodo({ id }: { id: string }) {
     return await db.delete(todo)
         .where(eq(todo.id, id));

@@ -1,21 +1,28 @@
+import { clerkClient } from "@clerk/nextjs/server";
 import { createId } from "@paralleldrive/cuid2";
+import { TRPCError } from "@trpc/server";
+import { todo } from "db/schema";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { createTodo, deleteTodo, getAllTodos } from "~/server/models/todo.server";
+import { db } from "~/lib/db";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
+import { createTodo, deleteTodo, getAllTodos, getTodo } from "~/server/models/todo.server";
 
 export const todoRouter = createTRPCRouter({
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(z.object({
       id: z.string().nonempty(),
       userId: z.string().nonempty(),
       text: z.string().nonempty(),
       completed: z.boolean().default(false)
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+
+      if (!ctx.userId) throw new TRPCError({ code: "UNAUTHORIZED" })
+
       return await createTodo({
         id: input.id || createId(),
-        user_id: createId(),
+        user_id: ctx.userId,
         text: input.text,
         completed: input.completed || false,
         created_at: new Date(),
@@ -23,16 +30,30 @@ export const todoRouter = createTRPCRouter({
       })
     }),
 
-  delete: publicProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+
+      // if no user_id in context, throw an error
+      if (!ctx.userId) throw new TRPCError({ code: "UNAUTHORIZED" })
+
+      const user = await clerkClient.users.getUser(ctx.userId)
+      const userRoles = [...(user.privateMetadata?.roles as string[] ?? [])];
+      const isAdmin = userRoles.includes("ADMIN")
+
+      // look up todo in db to grab user_id
+      const todo = await getTodo({ id: input.id })
+      // if the todo's user_id doesn't match the user_id in the context or is not admin, throw an error
+      if (todo[0]?.user_id !== ctx.userId && !isAdmin) throw new TRPCError({ code: "UNAUTHORIZED" })
+
       return await deleteTodo({
         id: input.id
       })
     }),
 
-  getAll: publicProcedure
-    .query(async () => {
+  getAll: protectedProcedure
+    .query(async ({ ctx }) => {
+      console.log("CTX", ctx)
       return await getAllTodos()
     })
 })
