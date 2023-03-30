@@ -9,6 +9,8 @@ const Home: NextPage = () => {
   const user = useUser();
 
 
+
+
   return (
     <>
       <Head>

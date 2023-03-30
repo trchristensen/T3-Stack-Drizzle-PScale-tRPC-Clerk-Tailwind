@@ -26,3 +26,7 @@ export async function deleteTodo({ id }: { id: string }) {
 export async function getAllTodos() {
     return await db.select().from(todo).orderBy(desc(todo.created_at));
 }
+
+export async function getAllTodosByUserId({ userId }: { userId: string }) {
+    return await db.select().from(todo).where(eq(todo.user_id, userId)).orderBy(desc(todo.created_at));
+}

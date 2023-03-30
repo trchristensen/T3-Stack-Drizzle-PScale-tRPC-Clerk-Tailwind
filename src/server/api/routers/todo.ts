@@ -5,7 +5,7 @@ import { todo } from "db/schema";
 import { z } from "zod";
 import { db } from "~/lib/db";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
-import { createTodo, deleteTodo, getAllTodos, getTodo } from "~/server/models/todo.server";
+import { createTodo, deleteTodo, getAllTodos, getAllTodosByUserId, getTodo } from "~/server/models/todo.server";
 
 export const todoRouter = createTRPCRouter({
 
@@ -37,10 +37,7 @@ export const todoRouter = createTRPCRouter({
       // if no user_id in context, throw an error
       if (!ctx.userId) throw new TRPCError({ code: "UNAUTHORIZED" })
 
-      const user = await clerkClient.users.getUser(ctx.userId)
-      const userRoles = [...(user.privateMetadata?.roles as string[] ?? [])];
-      const isAdmin = userRoles.includes("ADMIN")
-
+      const isAdmin = checkIfAdmin(ctx.userId);
       // look up todo in db to grab user_id
       const todo = await getTodo({ id: input.id })
       // if the todo's user_id doesn't match the user_id in the context or is not admin, throw an error
@@ -53,7 +50,19 @@ export const todoRouter = createTRPCRouter({
 
   getAll: protectedProcedure
     .query(async ({ ctx }) => {
-      console.log("CTX", ctx)
-      return await getAllTodos()
+      const isAdmin = await checkIfAdmin(ctx.userId);
+
+      if (isAdmin) return await getAllTodos();
+
+      if(!ctx.userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      return await getAllTodosByUserId({ userId: ctx.userId })
     })
 })
+
+async function checkIfAdmin(userId: string): Promise<boolean> {
+  const user = await clerkClient.users.getUser(userId)
+  if (!user) return false;
+  const userRoles = [...(user.privateMetadata?.roles as string[] ?? [])];
+  return userRoles.includes("ADMIN")
+}
