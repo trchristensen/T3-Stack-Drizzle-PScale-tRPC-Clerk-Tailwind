@@ -12,14 +12,16 @@ const Todo = () => {
     },
     onMutate: async (variables) => {
       await ctx.todo.getAll.cancel();
-     ctx.todo.getAll.setData(void 0, (old: Todo[] | undefined) => {
-      console.log('OLD', old)
-       if (!old) {
-         return [variables];
-       } else {
-         return [variables, ...old];
-       }
-     });
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      ctx.todo.getAll.setData(void 0, (old: Todo[] | undefined) => {
+        console.log("OLD", old);
+        if (!old) {
+          return [variables];
+        } else {
+          return [variables, ...old];
+        }
+      });
     },
   });
 
@@ -67,7 +69,7 @@ const Todo = () => {
     <div className="flex flex-col gap-4">
       <form onSubmit={handleAddTodo}>
         <input
-          className="w-full text-xl max-w-md rounded-lg bg-white/20 px-4 py-2 outline-purple-200/20"
+          className="w-full max-w-md rounded-lg bg-white/20 px-4 py-2 text-xl outline-purple-200/20"
           type="text"
           placeholder="Add a todo..."
           value={text}
@@ -75,7 +77,7 @@ const Todo = () => {
         />
       </form>
 
-      <div className="w-full flex flex-col gap-4 text-lg">
+      <div className="flex w-full flex-col gap-4 text-lg">
         {todos &&
           todos.map((todo) => {
             return (
@@ -83,10 +85,7 @@ const Todo = () => {
                 className="flex w-full max-w-md items-center justify-between rounded-lg border-purple-200 bg-white/20 px-4 py-2"
                 key={todo.id}
               >
-                <span>
-                  {todo.text}
-                
-                </span>
+                <span>{todo.text}</span>
                 <button onClick={() => handleDeleteTodo(todo.id)}>x</button>
               </div>
             );
